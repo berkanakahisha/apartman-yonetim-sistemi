@@ -164,3 +164,62 @@ th, td {
     max-height: 60vh;
     overflow-y: auto;
 }
+/* ---------- Mobil Uyumlu Tasarım ---------- */
+
+@media (max-width: 768px) {
+    body {
+        padding: 0;
+        font-size: 14px;
+    }
+
+    .app {
+        padding: 10px;
+        margin: 0;
+        border-radius: 0;
+        box-shadow: none;
+    }
+
+    .app-header {
+        flex-direction: column;
+        gap: 10px;
+        align-items: flex-start;
+    }
+
+    .toolbar {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+    }
+
+    .table-wrapper {
+        overflow-x: auto;
+    }
+
+    table {
+        min-width: 600px;
+        font-size: 14px;
+    }
+
+    .modal {
+        width: 95% !important;
+        max-width: none;
+    }
+
+    .modal-body {
+        max-height: 70vh;
+    }
+
+    .modal-header h2 {
+        font-size: 18px;
+    }
+}
+
+@media (max-width: 480px) {
+    .toolbar {
+        grid-template-columns: 1fr;
+    }
+
+    table {
+        font-size: 13px;
+    }
+}
