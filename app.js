@@ -125,3 +125,4 @@ function exportExcel() {
 
     XLSX.writeFile(wb, "aidat_listesi.xlsx");
 }
+console.log("JS yüklendi");
