@@ -236,25 +236,17 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
 
     <script>
-      // Firebase config'in BURAYA gelecek
-      const firebaseConfig = {
-        apiKey: "AIzaSyC6AyAhvq435JmeAfaosz-d_FG6szIFQnw",
-        authDomain: "apartman-yoneticisi.firebaseapp.com",
-        projectId: "apartman-yoneticisi",
-        storageBucket: "apartman-yoneticisi.firebasestorage.app",
-        messagingSenderId: "151059273544",
-        appId: "1:151059273544:web:e173422032307c233a457d",
-        measurementId: "G-4R0CVNZG6K"
-      };
+    <!-- Firebase -->
+<script src="firebase-app-compat.js"></script>
+<script src="firebase-firestore-compat.js"></script>
 
-      // Firebase'i başlat
-      firebase.initializeApp(firebaseConfig);
+<!-- Firebase Config -->
+<script>
+firebase.initializeApp(...);
+const db = firebase.firestore();
+</script>
 
-      // Firestore (bulut veritabanı) referansı
-      const db = firebase.firestore();
+<!-- Senin kodun (EN SON OLMALI) -->
+<script src="app.js"></script>
+
     </script>
-
-    <!-- Senin uygulama kodun -->
-    <script src="app.js"></script>
-</body>
-</html>
