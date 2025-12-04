@@ -52,21 +52,34 @@ function monthKeyToLabel(key) {
 // ----------------------------------
 // Veri yükleme / kaydetme (şimdilik localStorage)
 // ----------------------------------
-function loadData() {
-    try {
-        const raw = localStorage.getItem(STORAGE_KEY);
-        if (!raw) return;
-        const obj = JSON.parse(raw);
-        residents = obj.residents || [];
-        expenses  = obj.expenses  || [];
-    } catch (e) {
-        console.error("Veri okunamadı:", e);
-    }
+async function loadData() {
+    residents = [];
+    expenses = [];
+
+    const resSnap = await db.collection("residents").get();
+    resSnap.forEach(doc => residents.push(doc.data()));
+
+    const expSnap = await db.collection("expenses").get();
+    expSnap.forEach(doc => expenses.push(doc.data()));
 }
 
-function saveData() {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify({ residents, expenses }));
+
+async function saveData() {
+    const resRef = db.collection("residents");
+    const expRef = db.collection("expenses");
+
+    // eski verileri sil
+    const oldRes = await resRef.get();
+    oldRes.forEach(d => d.ref.delete());
+
+    const oldExp = await expRef.get();
+    oldExp.forEach(d => d.ref.delete());
+
+    // yeni verileri yaz
+    residents.forEach(r => resRef.doc(r.id).set(r));
+    expenses.forEach(e => expRef.doc(e.id).set(e));
 }
+
 
 // ----------------------------------
 // TABLOYU YENİDEN ÇİZ (Aidat tablosu)
@@ -581,9 +594,11 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // Verileri yükle + ekrana yazdır
-    loadData();
+    loadData().then(() => {
     renderTable();
     renderYearSummary();
+});
+
 
     // Butonlar
     document.getElementById("btnAddResident").addEventListener("click", openNewModal);
