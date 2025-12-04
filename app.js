@@ -347,14 +347,23 @@ function closeHistoryModal() {
 // Admin yetki gizleme
 // ----------------------------------
 function disableAdminFeatures() {
+    // Düzenleme, silme butonlarını gizle
     document.querySelectorAll(".edit-btn, .delete-btn, .expense-edit-btn, .expense-delete-btn")
         .forEach(btn => btn.style.display = "none");
 
+    // Yeni daire ekleme butonu gizle
     const addRes = document.getElementById("btnAddResident");
-    const addExp = document.getElementById("btnAddExpense");
     if (addRes) addRes.style.display = "none";
+
+    // Yeni gider ekleme butonu gizle
+    const addExp = document.getElementById("btnAddExpense");
     if (addExp) addExp.style.display = "none";
+
+    // Tüm veriyi sil butonu gizle  ← ÖNEMLİ KISIM
+    const clearBtn = document.getElementById("btnClearData");
+    if (clearBtn) clearBtn.style.display = "none";
 }
+
 
 // ----------------------------------
 // Giriş
