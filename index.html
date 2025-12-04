@@ -231,22 +231,28 @@
             <p id="loginError" class="error-text"></p>
                    </div>
     </div>
-    <!-- Firebase (tarayıcı için CDN) -->
+        <!-- Firebase (tarayıcı için CDN) -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
 
+    <!-- Firebase Config -->
     <script>
-    <!-- Firebase -->
-<script src="firebase-app-compat.js"></script>
-<script src="firebase-firestore-compat.js"></script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyC6AyAhvq435JmeAfaosz-d_FG6szIFQnw",
+            authDomain: "apartman-yoneticisi.firebaseapp.com",
+            projectId: "apartman-yoneticisi",
+            storageBucket: "apartman-yoneticisi.appspot.com",
+            messagingSenderId: "151059273544",
+            appId: "1:151059273544:web:e173422032307c233a457d",
+            measurementId: "G-4R0CVNZG6K"
+        };
 
-<!-- Firebase Config -->
-<script>
-firebase.initializeApp(...);
-const db = firebase.firestore();
-</script>
-
-<!-- Senin kodun (EN SON OLMALI) -->
-<script src="app.js"></script>
-
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
     </script>
+
+    <!-- Uygulama Kodları (EN SON OLMAK ZORUNDA) -->
+    <script src="app.js"></script>
+
+</body>
+</html>
