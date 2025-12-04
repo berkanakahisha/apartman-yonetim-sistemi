@@ -69,6 +69,37 @@
 
             <!-- GELİR – GİDER KARTI -->
             <div class="table-card finance-card">
+                <!-- YIL GENELİ ÖZET PANELİ -->
+<div class="table-card" id="yearSummaryCard">
+    <div class="table-header">
+        <h2>Yıl Genel Özeti</h2>
+        <label>
+            Yıl Seç:
+            <select id="yearSelect"></select>
+        </label>
+    </div>
+
+    <div class="summary">
+        <span>Yıllık Toplam Gelir: <strong id="yearIncome">0</strong> ₺</span>
+        <span>Yıllık Toplam Gider: <strong id="yearExpense">0</strong> ₺</span>
+        <span>Net Kasa: <strong id="yearNet">0</strong> ₺</span>
+    </div>
+
+    <div class="table-wrapper">
+        <table>
+            <thead>
+                <tr>
+                    <th>Ay</th>
+                    <th>Aidat Geliri (₺)</th>
+                    <th>Gider (₺)</th>
+                    <th>Net (₺)</th>
+                </tr>
+            </thead>
+            <tbody id="yearSummaryTableBody"></tbody>
+        </table>
+    </div>
+</div>
+
                 <div class="table-header">
                     <h2>Gelir &amp; Gider Özeti</h2>
                     <div class="summary">
