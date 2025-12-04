@@ -50,7 +50,7 @@ function monthKeyToLabel(key) {
 }
 
 // ----------------------------------
-// Veri yükleme / kaydetme
+// Veri yükleme / kaydetme (şimdilik localStorage)
 // ----------------------------------
 function loadData() {
     try {
@@ -58,8 +58,8 @@ function loadData() {
         if (!raw) return;
         const obj = JSON.parse(raw);
         residents = obj.residents || [];
-        expenses = obj.expenses || [];
-    } catch(e) {
+        expenses  = obj.expenses  || [];
+    } catch (e) {
         console.error("Veri okunamadı:", e);
     }
 }
@@ -77,8 +77,8 @@ function renderTable() {
 
     tbody.innerHTML = "";
 
-    let totalMonthly = 0;
-    let totalPaid = 0;
+    let totalMonthly   = 0;
+    let totalPaid      = 0;
     let totalRemaining = 0;
 
     const monthKey = getSelectedMonthKey();
@@ -93,12 +93,11 @@ function renderTable() {
 
         const remaining = Math.max(monthly - paid, 0);
 
-        totalMonthly += monthly;
-        totalPaid += paid;
+        totalMonthly   += monthly;
+        totalPaid      += paid;
         totalRemaining += remaining;
 
         const tr = document.createElement("tr");
-
         tr.innerHTML = `
             <td>${r.flatNo}</td>
             <td>${r.fullName}</td>
@@ -106,7 +105,7 @@ function renderTable() {
             <td class="amount">${formatMoney(paid)}</td>
             <td class="amount">
                 <span class="badge ${remaining > 0 ? "negative" : "positive"}">
-                    ${remaining > 0 ? formatMoney(remaining)+" ₺" : "Yok"}
+                    ${remaining > 0 ? formatMoney(remaining) + " ₺" : "Yok"}
                 </span>
             </td>
             <td>${r.note || ""}</td>
@@ -116,15 +115,14 @@ function renderTable() {
                 <button class="icon-btn danger delete-btn" onclick="deleteResident('${r.id}')">🗑</button>
             </td>
         `;
-
         tbody.appendChild(tr);
     });
 
     summaryTotals = { totalMonthly, totalPaid, totalRemaining };
 
     document.getElementById("summaryMonthlyFee").textContent = formatMoney(totalMonthly);
-    document.getElementById("summaryPaid").textContent = formatMoney(totalPaid);
-    document.getElementById("summaryRemaining").textContent = formatMoney(totalRemaining);
+    document.getElementById("summaryPaid").textContent       = formatMoney(totalPaid);
+    document.getElementById("summaryRemaining").textContent  = formatMoney(totalRemaining);
 
     if (currentRole === "viewer") disableAdminFeatures();
 
@@ -163,11 +161,11 @@ function renderExpenses() {
         });
 
     const income = summaryTotals.totalPaid;
-    const net = income - totalExpense;
+    const net    = income - totalExpense;
 
-    document.getElementById("summaryIncome").textContent = formatMoney(income);
+    document.getElementById("summaryIncome").textContent  = formatMoney(income);
     document.getElementById("summaryExpense").textContent = formatMoney(totalExpense);
-    document.getElementById("summaryNet").textContent = formatMoney(net);
+    document.getElementById("summaryNet").textContent     = formatMoney(net);
 
     if (currentRole === "viewer") disableAdminFeatures();
 }
@@ -179,11 +177,13 @@ function renderYearSummary() {
     const tbody = document.getElementById("yearSummaryTableBody");
     if (!tbody) return;
 
-    const year = document.getElementById("yearSelect").value;
+    const yearSelect = document.getElementById("yearSelect");
+    if (!yearSelect) return;
+    const year = yearSelect.value;
 
     tbody.innerHTML = "";
 
-    let totalYearIncome = 0;
+    let totalYearIncome  = 0;
     let totalYearExpense = 0;
 
     const months = [
@@ -192,8 +192,8 @@ function renderYearSummary() {
     ];
 
     months.forEach((m, i) => {
-        const key = `${year}-${String(i+1).padStart(2,"0")}`;
-        let income = 0;
+        const key = `${year}-${String(i + 1).padStart(2, "0")}`;
+        let income  = 0;
         let expense = 0;
 
         residents.forEach(r => {
@@ -208,7 +208,7 @@ function renderYearSummary() {
             }
         });
 
-        totalYearIncome += income;
+        totalYearIncome  += income;
         totalYearExpense += expense;
 
         const tr = document.createElement("tr");
@@ -221,12 +221,13 @@ function renderYearSummary() {
         tbody.appendChild(tr);
     });
 
-    document.getElementById("yearIncome").textContent = formatMoney(totalYearIncome);
+    document.getElementById("yearIncome").textContent  = formatMoney(totalYearIncome);
     document.getElementById("yearExpense").textContent = formatMoney(totalYearExpense);
-    document.getElementById("yearNet").textContent = formatMoney(totalYearIncome - totalYearExpense);
+    document.getElementById("yearNet").textContent     = formatMoney(totalYearIncome - totalYearExpense);
 }
+
 // ----------------------------------
-// Yeni kullanıcı ekle
+// Yeni kullanıcı ekle / güncelle / sil
 // ----------------------------------
 function addResident(data, paidAmount) {
     const id = Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
@@ -243,9 +244,6 @@ function addResident(data, paidAmount) {
     renderYearSummary();
 }
 
-// ----------------------------------
-// Kullanıcı güncelle
-// ----------------------------------
 function updateResident(id, data, paidAmount) {
     const monthKey = getSelectedMonthKey();
     const idx = residents.findIndex(r => r.id === id);
@@ -254,7 +252,9 @@ function updateResident(id, data, paidAmount) {
     const old = residents[idx];
     const payments = old.payments || {};
 
-    payments[monthKey] = { paid: paidAmount };
+    if (monthKey) {
+        payments[monthKey] = { paid: paidAmount };
+    }
 
     residents[idx] = { ...old, ...data, payments };
     saveData();
@@ -262,9 +262,6 @@ function updateResident(id, data, paidAmount) {
     renderYearSummary();
 }
 
-// ----------------------------------
-// Kullanıcı sil
-// ----------------------------------
 function deleteResident(id) {
     if (!confirm("Bu daireyi silmek istiyor musunuz?")) return;
     residents = residents.filter(r => r.id !== id);
@@ -274,7 +271,7 @@ function deleteResident(id) {
 }
 
 // ----------------------------------
-// Gider ekleme / güncelleme
+// Gider ekleme / güncelleme / silme
 // ----------------------------------
 function addExpense(data) {
     const id = Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
@@ -308,21 +305,21 @@ function openHistoryModal(id) {
     const r = residents.find(x => x.id === id);
     if (!r) return;
 
-    const listEl = document.getElementById("historyList");
+    const listEl  = document.getElementById("historyList");
     const titleEl = document.getElementById("historyModalTitle");
 
     titleEl.textContent = `${r.flatNo} – ${r.fullName} | Ödeme Geçmişi`;
     listEl.innerHTML = "";
 
     const payments = r.payments || {};
-    const entries = Object.entries(payments).sort((a, b) => (a[0] < b[0] ? 1 : -1));
+    const entries  = Object.entries(payments).sort((a, b) => (a[0] < b[0] ? 1 : -1));
 
     if (entries.length === 0) {
         listEl.innerHTML = `<tr><td colspan="4">Kayıt yok</td></tr>`;
     } else {
         entries.forEach(([monthKey, info]) => {
-            const monthly = Number(r.monthlyFee || 0);
-            const paid = Number(info.paid || 0);
+            const monthly   = Number(r.monthlyFee || 0);
+            const paid      = Number(info.paid || 0);
             const remaining = monthly - paid;
 
             const tr = document.createElement("tr");
@@ -344,26 +341,192 @@ function closeHistoryModal() {
 }
 
 // ----------------------------------
+// DAİRE MODALI (aç / kapat / düzenle)
+// ----------------------------------
+function openNewModal() {
+    document.getElementById("residentModalTitle").textContent = "Yeni Kullanıcı / Daire";
+
+    document.getElementById("residentId").value       = "";
+    document.getElementById("flatNo").value           = "";
+    document.getElementById("fullName").value         = "";
+    document.getElementById("monthlyFee").value       = "";
+    document.getElementById("paidThisMonth").value    = "0";
+    document.getElementById("note").value             = "";
+
+    document.getElementById("residentModal").classList.add("open");
+}
+
+function openEditModal(id) {
+    const r = residents.find(x => x.id === id);
+    if (!r) return;
+
+    document.getElementById("residentModalTitle").textContent = "Kullanıcı / Daire Düzenle";
+
+    const monthKey = getSelectedMonthKey();
+    let paid = 0;
+    if (r.payments && r.payments[monthKey]) {
+        paid = Number(r.payments[monthKey].paid || 0);
+    }
+
+    document.getElementById("residentId").value       = r.id;
+    document.getElementById("flatNo").value           = r.flatNo;
+    document.getElementById("fullName").value         = r.fullName;
+    document.getElementById("monthlyFee").value       = r.monthlyFee;
+    document.getElementById("paidThisMonth").value    = paid;
+    document.getElementById("note").value             = r.note || "";
+
+    document.getElementById("residentModal").classList.add("open");
+}
+
+function closeModal() {
+    document.getElementById("residentModal").classList.remove("open");
+}
+
+// ----------------------------------
+// GİDER MODALI
+// ----------------------------------
+function openNewExpenseModal() {
+    document.getElementById("expenseModalTitle").textContent = "Yeni Gider";
+
+    document.getElementById("expenseId").value          = "";
+    const monthKey = getSelectedMonthKey();
+    document.getElementById("expenseDate").value        = monthKey ? monthKey + "-01" : "";
+    document.getElementById("expenseCategory").value    = "";
+    document.getElementById("expenseDescription").value = "";
+    document.getElementById("expenseAmount").value      = "";
+
+    document.getElementById("expenseModal").classList.add("open");
+}
+
+function openEditExpenseModal(id) {
+    const e = expenses.find(x => x.id === id);
+    if (!e) return;
+
+    document.getElementById("expenseModalTitle").textContent = "Gideri Düzenle";
+
+    document.getElementById("expenseId").value          = e.id;
+    document.getElementById("expenseDate").value        = e.date || "";
+    document.getElementById("expenseCategory").value    = e.category || "";
+    document.getElementById("expenseDescription").value = e.description || "";
+    document.getElementById("expenseAmount").value      = e.amount || 0;
+
+    document.getElementById("expenseModal").classList.add("open");
+}
+
+function closeExpenseModal() {
+    document.getElementById("expenseModal").classList.remove("open");
+}
+
+// ----------------------------------
+// PDF ÇIKTI
+// ----------------------------------
+function exportPDF() {
+    if (!residents.length) {
+        alert("Önce en az bir kullanıcı ekleyin.");
+        return;
+    }
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+
+    const monthKey   = getSelectedMonthKey();
+    const monthLabel = monthKeyToLabel(monthKey);
+
+    doc.setFontSize(16);
+    doc.text("Apartman Aidat Raporu", 14, 16);
+    doc.setFontSize(11);
+    doc.text("Ay: " + (monthLabel || "-"), 14, 24);
+
+    const body = residents.map(r => {
+        const monthly = Number(r.monthlyFee || 0);
+        let paid = 0;
+        if (r.payments && r.payments[monthKey]) {
+            paid = Number(r.payments[monthKey].paid || 0);
+        }
+        const remaining = Math.max(monthly - paid, 0);
+
+        return [
+            r.flatNo,
+            r.fullName,
+            formatMoney(monthly)   + " ₺",
+            formatMoney(paid)      + " ₺",
+            formatMoney(remaining) + " ₺",
+            (r.note || "").slice(0, 40)
+        ];
+    });
+
+    doc.autoTable({
+        head: [["Daire", "İsim", "Aidat", "Ödenen", "Kalan", "Not"]],
+        body,
+        startY: 30,
+        styles: { fontSize: 9 }
+    });
+
+    doc.save(`Aidat_Raporu_${monthKey || "Ay"}.pdf`);
+}
+
+// ----------------------------------
+// EXCEL ÇIKTI
+// ----------------------------------
+function exportExcel() {
+    if (!residents.length) {
+        alert("Önce en az bir kullanıcı ekleyin.");
+        return;
+    }
+    const monthKey = getSelectedMonthKey();
+
+    const rows = residents.map(r => {
+        const monthly = Number(r.monthlyFee || 0);
+        let paid = 0;
+        if (r.payments && r.payments[monthKey]) {
+            paid = Number(r.payments[monthKey].paid || 0);
+        }
+        const remaining = monthly - paid;
+
+        return {
+            "Daire":        r.flatNo,
+            "İsim":         r.fullName,
+            "Aidat (₺)":    monthly,
+            "Ödenen (₺)":   paid,
+            "Kalan (₺)":    remaining,
+            "Not":          r.note || ""
+        };
+    });
+
+    const ws = XLSX.utils.json_to_sheet(rows);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Aidat");
+
+    XLSX.writeFile(wb, `Aidat_Listesi_${monthKey || "Ay"}.xlsx`);
+}
+
+// ----------------------------------
+// TÜM VERİLERİ TEMİZLE
+// ----------------------------------
+function clearAllData() {
+    if (!confirm("Tüm veriler (daireler + giderler) silinecek! Emin misiniz?")) return;
+    residents = [];
+    expenses  = [];
+    saveData();
+    renderTable();
+    renderExpenses();
+    renderYearSummary();
+}
+
+// ----------------------------------
 // Admin yetki gizleme
 // ----------------------------------
 function disableAdminFeatures() {
-    // Düzenleme, silme butonlarını gizle
     document.querySelectorAll(".edit-btn, .delete-btn, .expense-edit-btn, .expense-delete-btn")
         .forEach(btn => btn.style.display = "none");
 
-    // Yeni daire ekleme butonu gizle
-    const addRes = document.getElementById("btnAddResident");
-    if (addRes) addRes.style.display = "none";
-
-    // Yeni gider ekleme butonu gizle
-    const addExp = document.getElementById("btnAddExpense");
-    if (addExp) addExp.style.display = "none";
-
-    // Tüm veriyi sil butonu gizle  ← ÖNEMLİ KISIM
+    const addRes  = document.getElementById("btnAddResident");
+    const addExp  = document.getElementById("btnAddExpense");
     const clearBtn = document.getElementById("btnClearData");
+
+    if (addRes)  addRes.style.display  = "none";
+    if (addExp)  addExp.style.display  = "none";
     if (clearBtn) clearBtn.style.display = "none";
 }
-
 
 // ----------------------------------
 // Giriş
@@ -385,7 +548,7 @@ function handleLogin() {
 }
 
 // ----------------------------------
-// DOM YÜKLENDİĞİNDE (TEK VE DOĞRU)
+// DOM YÜKLENDİĞİNDE
 // ----------------------------------
 document.addEventListener("DOMContentLoaded", () => {
 
@@ -396,7 +559,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const now = new Date();
     const monthInput = document.getElementById("monthSelect");
     if (monthInput) {
-        monthInput.value = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,"0")}`;
+        monthInput.value = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
         monthInput.addEventListener("change", () => {
             renderTable();
             renderYearSummary();
@@ -414,7 +577,6 @@ document.addEventListener("DOMContentLoaded", () => {
             if (y === currentYear) opt.selected = true;
             yearSelect.appendChild(opt);
         }
-
         yearSelect.addEventListener("change", renderYearSummary);
     }
 
@@ -435,35 +597,53 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("expenseModalCloseBtn").addEventListener("click", closeExpenseModal);
     document.getElementById("historyModalCloseBtn").addEventListener("click", closeHistoryModal);
 
+    // Dışına tıklayınca modalları kapat
+    document.getElementById("residentModal").addEventListener("click", (e) => {
+        if (e.target.id === "residentModal") closeModal();
+    });
+    document.getElementById("expenseModal").addEventListener("click", (e) => {
+        if (e.target.id === "expenseModal") closeExpenseModal();
+    });
+    document.getElementById("historyModal").addEventListener("click", (e) => {
+        if (e.target.id === "historyModal") closeHistoryModal();
+    });
+
+    // Form: daire
     document.getElementById("residentForm").addEventListener("submit", (e) => {
         e.preventDefault();
         const id = document.getElementById("residentId").value;
         const data = {
-            flatNo: document.getElementById("flatNo").value.trim(),
-            fullName: document.getElementById("fullName").value.trim(),
-            monthlyFee: Number(document.getElementById("monthlyFee").value),
-            note: document.getElementById("note").value.trim()
+            flatNo:     document.getElementById("flatNo").value.trim(),
+            fullName:   document.getElementById("fullName").value.trim(),
+            monthlyFee: Number(document.getElementById("monthlyFee").value || 0),
+            note:       document.getElementById("note").value.trim()
         };
         const paid = Number(document.getElementById("paidThisMonth").value || 0);
 
         if (id) updateResident(id, data, paid);
-        else addResident(data, paid);
+        else    addResident(data, paid);
 
         closeModal();
     });
 
+    // Form: gider
     document.getElementById("expenseForm").addEventListener("submit", (e) => {
         e.preventDefault();
         const id = document.getElementById("expenseId").value;
         const data = {
-            date: document.getElementById("expenseDate").value,
-            category: document.getElementById("expenseCategory").value.trim(),
+            date:        document.getElementById("expenseDate").value,
+            category:    document.getElementById("expenseCategory").value.trim(),
             description: document.getElementById("expenseDescription").value.trim(),
-            amount: Number(document.getElementById("expenseAmount").value)
+            amount:      Number(document.getElementById("expenseAmount").value || 0)
         };
 
+        if (!data.date) {
+            alert("Lütfen gider tarihini girin.");
+            return;
+        }
+
         if (id) updateExpense(id, data);
-        else addExpense(data);
+        else    addExpense(data);
 
         closeExpenseModal();
     });
