@@ -572,9 +572,19 @@ function handleLogin() {
 // DOM YÜKLENDİĞİNDE
 // ----------------------------------
 document.addEventListener("DOMContentLoaded", () => {
-
+    
     // Giriş butonu
     document.getElementById("loginBtn").addEventListener("click", handleLogin);
+
+    const phoneInput = document.getElementById("phone");
+if (phoneInput) {
+    phoneInput.addEventListener("input", () => {
+        phoneInput.value = phoneInput.value.replace(/\D/g, "");
+        if (phoneInput.value.length > 11) {
+            phoneInput.value = phoneInput.value.slice(0, 11);
+        }
+    });
+}
 
     // Ay seçiciyi kur
     const now = new Date();
