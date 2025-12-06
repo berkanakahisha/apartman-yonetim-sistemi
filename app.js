@@ -365,6 +365,8 @@ function openNewModal() {
     document.getElementById("monthlyFee").value       = "";
     document.getElementById("paidThisMonth").value    = "0";
     document.getElementById("note").value             = "";
+    document.getElementById("phone").value = "";
+
 
     document.getElementById("residentModal").classList.add("open");
 }
