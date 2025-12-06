@@ -505,6 +505,7 @@ function exportExcel() {
         return {
             "Daire":        r.flatNo,
             "İsim":         r.fullName,
+            "Telefon":      r.phone || "",
             "Aidat (₺)":    monthly,
             "Ödenen (₺)":   paid,
             "Kalan (₺)":    remaining,
